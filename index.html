@@ -25,6 +25,11 @@
     .legend { background: white; padding: 10px; line-height: 1.5em; }
     .legend input { vertical-align: middle; }
     .legend label { margin-left: 5px; }
+
+    /* Prevent KML from blocking mouse clicks */
+    .leaflet-overlay-pane svg path {
+      pointer-events: none !important;
+    }
   </style>
 </head>
 <body>
@@ -44,16 +49,17 @@
 
   // Load and add KML layer FIRST (so it's underneath markers)
   const kmlUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/main/green%20claim%20line%20KML%20test.kml';
-omnivore.kml(kmlUrl)
-  .on('ready', function () {
-    this.eachLayer(function (layer) {
-      layer.setStyle({
-        color: 'green',
-        interactive: false // Prevent mouse interaction
+  omnivore.kml(kmlUrl)
+    .on('ready', function () {
+      this.eachLayer(function (layer) {
+        layer.setStyle({
+          color: 'green',
+          weight: 2,
+          opacity: 0.7
+        });
       });
-    });
-  })
-  .addTo(map); // Add before markers
+    })
+    .addTo(map);
 
   function getColor(category) {
     if (!colors[category]) {
