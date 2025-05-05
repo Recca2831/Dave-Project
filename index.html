@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CSV Map with Legend and Custom Layer Toggle</title>
+  <title>CSV Map with Legend Below Map</title>
 
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
@@ -21,24 +21,28 @@
   <script src="https://unpkg.com/leaflet-omnivore@0.3.1/leaflet-omnivore.min.js"></script>
 
   <style>
-    /* Styling the map */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
     #map {
       height: 90vh;
       width: 100%;
     }
 
-    /* Styling the legend container */
     #legend {
-      background: white;
+      background: #fff;
       padding: 15px;
-      font-family: Arial, sans-serif;
       font-size: 14px;
-      border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-      margin-top: 10px;
-      max-width: 300px;
-      display: flex;
-      flex-direction: column;
+      border-top: 1px solid #ccc;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+      max-width: 100%;
+    }
+
+    #legend div {
+      margin: 5px 0;
     }
 
     #legend input {
@@ -59,26 +63,22 @@
 <!-- Map Container -->
 <div id="map"></div>
 
-<!-- Legend Container (Below the Map) -->
+<!-- Legend Below the Map -->
 <div id="legend"></div>
 
 <script>
   const map = L.map('map').setView([41.2194833, -106.2815294], 4);
 
-  // Add tile layer
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18
   }).addTo(map);
 
-  // Initialize the variables
   const layers = {};
   const colors = {};
 
-  // KML Layer setup (not yet shown until toggle)
   const kmlUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/main/green%20claim%20line%20KML%20test.kml';
   let kmlLayer;
 
-  // KML layer loading and setting styles
   omnivore.kml(kmlUrl).on('ready', function () {
     this.eachLayer(function (layer) {
       layer.setStyle({
@@ -87,12 +87,10 @@
         opacity: 0.7
       });
     });
-    kmlLayer = this;  // Save the KML layer for toggling later
-    // Ensure legend is updated after KML is loaded
+    kmlLayer = this;
     updateLegend();
   });
 
-  // Function to get a random color for each category
   function getColor(category) {
     if (!colors[category]) {
       colors[category] = '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -100,21 +98,20 @@
     return colors[category];
   }
 
-  // Function to create the legend
   function updateLegend() {
     const legend = document.getElementById('legend');
-    legend.innerHTML = '<b>Toggle Categories:</b><br>';
+    legend.innerHTML = '<strong>Toggle Categories:</strong><br>';
 
-    // Add custom KML layer toggle
+    // Add KML toggle first
     legend.innerHTML += `
-      <hr>
       <div>
         <input type="checkbox" id="kmlToggle" checked onchange="toggleKML()">
-        <label for="kmlToggle"><strong>Original Claim Lines</strong></label> <!-- Renamed here -->
+        <label for="kmlToggle"><strong>Original Claim Lines</strong></label>
       </div>
+      <hr>
     `;
 
-    // Add categories to the legend dynamically based on data
+    // Add data categories
     Object.keys(layers).forEach((category) => {
       const color = getColor(category);
       legend.innerHTML += `
@@ -124,10 +121,9 @@
           <label for="${category}">${category}</label>
         </div>
       `;
-  }
+    });
   }
 
-  // Function to toggle the visibility of the layers based on category
   function toggleLayer(category) {
     if (layers[category]) {
       if (map.hasLayer(layers[category])) {
@@ -138,29 +134,24 @@
     }
   }
 
-  // Function to toggle the KML layer visibility
-  window.toggleKML = function() {
+  window.toggleKML = function () {
     const checkbox = document.getElementById('kmlToggle');
-    if (checkbox.checked) {
-      if (kmlLayer) {
+    if (kmlLayer) {
+      if (checkbox.checked) {
         map.addLayer(kmlLayer);
-      }
-    } else {
-      if (kmlLayer) {
+      } else {
         map.removeLayer(kmlLayer);
       }
     }
   };
 
-  // Parse the CSV data and add markers to the map
   const csvUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/refs/heads/main/wy-geo-db-polished.csv';
 
   Papa.parse(csvUrl, {
     download: true,
     header: true,
-    complete: function(results) {
+    complete: function (results) {
       const data = results.data;
-      const categories = new Set();
 
       data.forEach((row) => {
         const lat = parseFloat(row.Latitude);
@@ -168,17 +159,12 @@
         const category = row.Cd_ppm_ICP61 || 'Uncategorized';
         if (isNaN(lat) || isNaN(lon)) return;
 
-        categories.add(category);
-
-        let popupContent = '<strong>Details:</strong><br>';
-        for (const key in row) {
-          const value = row[key] || 'N/A';
+        const popupContent = Object.entries(row).map(([key, val]) => {
           if (key.toLowerCase() === 'website') {
-            popupContent += `<b>${key}:</b> <a href="${value}" target="_blank">${value}</a><br>`;
-          } else {
-            popupContent += `<b>${key}:</b> ${value}<br>`;
+            return `<b>${key}:</b> <a href="${val}" target="_blank">${val}</a>`;
           }
-        }
+          return `<b>${key}:</b> ${val || 'N/A'}`;
+        }).join('<br>');
 
         const marker = L.marker([lat, lon]).bindPopup(popupContent);
 
@@ -188,15 +174,12 @@
         layers[category].addLayer(marker);
       });
 
-      // Add layers to the map
       for (const category in layers) {
         map.addLayer(layers[category]);
       }
 
-      // Update the legend now that all layers are added
       updateLegend();
 
-      // Fit map bounds to markers
       const allMarkers = L.featureGroup(Object.values(layers));
       map.fitBounds(allMarkers.getBounds(), { maxZoom: 8 });
     },
