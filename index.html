@@ -97,9 +97,9 @@
 
         //mouseover data
         let popupContent = '<strong>Details:</strong><br>';
-for (const key in column) {
+for (const key in row) {
   if (row.hasOwnProperty(key)) {
-    const value = column[key] || 'N/A';
+    const value = row[key] || 'N/A';
     if (key.toLowerCase() === 'website') {
       popupContent += `<b>${key}:</b> <a href="${value}" target="_blank">${value}</a><br>`;
     } else {
