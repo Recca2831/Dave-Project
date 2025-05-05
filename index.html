@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 
-  <!-- Leaflet MarkerCluster CSS & JS (for clustering and spiderfying) -->
+  <!-- MarkerCluster plugin -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
@@ -17,7 +17,7 @@
   <!-- PapaParse for CSV parsing -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
 
-  <!-- Omnivore (for KML support) -->
+  <!-- Omnivore for KML -->
   <script src="https://unpkg.com/leaflet-omnivore@0.3.1/leaflet-omnivore.min.js"></script>
 
   <style>
@@ -33,10 +33,8 @@
 <div id="legend" class="legend"></div>
 
 <script>
-  // Set initial map view to the coordinates (41.2194833, -106.2815294) with zoom level 4 (not too zoomed in)
   const map = L.map('map').setView([41.2194833, -106.2815294], 4);
 
-  // Add OpenStreetMap tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18
   }).addTo(map);
@@ -44,7 +42,6 @@
   const colors = {};
   const layers = {};
 
-  // Function to generate random color for categories
   function getColor(category) {
     if (!colors[category]) {
       colors[category] = '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -52,7 +49,6 @@
     return colors[category];
   }
 
-  // Function to add legend
   function addLegend(categories) {
     const legend = document.getElementById('legend');
     legend.innerHTML = '<b>Toggle Categories:</b><br>';
@@ -68,14 +64,12 @@
     });
   }
 
-  // Function to toggle visibility of layers
   function toggleLayer(category) {
     if (layers[category]) {
-      const layerGroup = layers[category];
-      if (map.hasLayer(layerGroup)) {
-        map.removeLayer(layerGroup);
+      if (map.hasLayer(layers[category])) {
+        map.removeLayer(layers[category]);
       } else {
-        map.addLayer(layerGroup);
+        map.addLayer(layers[category]);
       }
     }
   }
@@ -88,13 +82,11 @@
     complete: function(results) {
       const data = results.data;
       const categories = new Set();
-      const markerClusters = L.markerClusterGroup(); // Create a marker cluster group
 
       data.forEach(row => {
         const lat = parseFloat(row.Latitude);
         const lon = parseFloat(row.Longitude);
         const category = row.Cd_ppm_ICP61 || "Uncategorized";
-
         if (isNaN(lat) || isNaN(lon)) return;
 
         categories.add(category);
@@ -111,37 +103,34 @@
           }
         }
 
-        // Create a marker and bind a popup
-        const marker = L.circleMarker([lat, lon], {
-          radius: 6,
-          color: getColor(category),
-          fillOpacity: 0.8
-        }).bindPopup(popupContent);
+        // Use L.marker for spiderfy support
+        const marker = L.marker([lat, lon]).bindPopup(popupContent);
 
-        // Add marker to the marker cluster group (This handles clustering and spiderfying)
+        // Add to MarkerClusterGroup per category
         if (!layers[category]) {
-          layers[category] = L.layerGroup(); // Create a new layer group for the category
+          layers[category] = L.markerClusterGroup();
         }
         layers[category].addLayer(marker);
       });
 
-      // Add all layers to the map using the marker cluster group (which handles clustering and spiderfying)
+      // Add each category's cluster group to the map
       for (const category in layers) {
         map.addLayer(layers[category]);
       }
 
-      // Add the legend
       addLegend(Array.from(categories));
 
-      // Fit map to bounds of all markers, but limit zoom to prevent over-zooming
-      const bounds = markerClusters.getBounds();
-      map.fitBounds(bounds, { maxZoom: 8 }); // Adjust the maxZoom to control zoom level
+      // Fit bounds of all markers
+      const allMarkers = L.featureGroup(Object.values(layers));
+      map.fitBounds(allMarkers.getBounds(), { maxZoom: 8 });
     }
   });
 
-  // Add KML file to the map (use the raw URL)
-  const kmlUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/main/green%20claim%20line%20KML%20test.kml';  // Use raw URL for KML
-  const kmlLayer = omnivore.kml(kmlUrl).addTo(map);
+  // Add KML layer
+  const kmlUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/main/green%20claim%20line%20KML%20test.kml';
+  omnivore.kml(kmlUrl).on('ready', function () {
+    this.setStyle({ color: 'green' });
+  }).addTo(map);
 </script>
 
 </body>
