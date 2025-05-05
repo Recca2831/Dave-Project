@@ -109,4 +109,12 @@
       });
 
       addLegend(Array.from(categories));
-      // Fit
+      // Fit map to bounds of all layers
+      const allLayers = L.featureGroup(Object.values(layers));
+      map.fitBounds(allLayers.getBounds());
+    }
+  });
+</script>
+
+</body>
+</html>
