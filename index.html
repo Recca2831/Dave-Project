@@ -82,7 +82,7 @@
         const lon = parseFloat(row.Longitude);
         const category = row.Category || "Uncategorized";
 
-        if (!lat || !lon) return;
+        if (isNaN(lat) || isNaN(lon)) return;
 
         categories.add(category);
         if (!layers[category]) {
