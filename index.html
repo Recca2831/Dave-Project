@@ -42,6 +42,14 @@
   const colors = {};
   const layers = {};
 
+  // Load and add KML layer FIRST (so it's underneath markers)
+  const kmlUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/main/green%20claim%20line%20KML%20test.kml';
+  omnivore.kml(kmlUrl)
+    .on('ready', function () {
+      this.setStyle({ color: 'green' });
+    })
+    .addTo(map); // Add before markers
+
   function getColor(category) {
     if (!colors[category]) {
       colors[category] = '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -93,44 +101,32 @@
 
         let popupContent = '<strong>Details:</strong><br>';
         for (const key in row) {
-          if (row.hasOwnProperty(key)) {
-            const value = row[key] || 'N/A';
-            if (key.toLowerCase() === 'website') {
-              popupContent += `<b>${key}:</b> <a href="${value}" target="_blank">${value}</a><br>`;
-            } else {
-              popupContent += `<b>${key}:</b> ${value}<br>`;
-            }
+          const value = row[key] || 'N/A';
+          if (key.toLowerCase() === 'website') {
+            popupContent += `<b>${key}:</b> <a href="${value}" target="_blank">${value}</a><br>`;
+          } else {
+            popupContent += `<b>${key}:</b> ${value}<br>`;
           }
         }
 
-        // Use L.marker for spiderfy support
         const marker = L.marker([lat, lon]).bindPopup(popupContent);
 
-        // Add to MarkerClusterGroup per category
         if (!layers[category]) {
           layers[category] = L.markerClusterGroup();
         }
         layers[category].addLayer(marker);
       });
 
-      // Add each category's cluster group to the map
       for (const category in layers) {
-        map.addLayer(layers[category]);
+        map.addLayer(layers[category]); // Markers added AFTER KML
       }
 
       addLegend(Array.from(categories));
 
-      // Fit bounds of all markers
       const allMarkers = L.featureGroup(Object.values(layers));
       map.fitBounds(allMarkers.getBounds(), { maxZoom: 8 });
     }
   });
-
-  // Add KML layer
-  const kmlUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/main/green%20claim%20line%20KML%20test.kml';
-  omnivore.kml(kmlUrl).on('ready', function () {
-    this.setStyle({ color: 'green' });
-  }).addTo(map);
 </script>
 
 </body>
