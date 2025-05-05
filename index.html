@@ -44,11 +44,16 @@
 
   // Load and add KML layer FIRST (so it's underneath markers)
   const kmlUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/main/green%20claim%20line%20KML%20test.kml';
-  omnivore.kml(kmlUrl)
-    .on('ready', function () {
-      this.setStyle({ color: 'green' });
-    })
-    .addTo(map); // Add before markers
+omnivore.kml(kmlUrl)
+  .on('ready', function () {
+    this.eachLayer(function (layer) {
+      layer.setStyle({
+        color: 'green',
+        interactive: false // Prevent mouse interaction
+      });
+    });
+  })
+  .addTo(map); // Add before markers
 
   function getColor(category) {
     if (!colors[category]) {
