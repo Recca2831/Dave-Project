@@ -93,8 +93,13 @@
           radius: 6,
           color: getColor(category),
           fillOpacity: 0.8
-        }).bindPopup(`<strong>${row.Name || 'Unnamed'}</strong><br>${category}`);
-
+        })
+        .bindPopup(`
+        <strong>${row.Name || 'Unnamed'}</strong><br>
+        <b>Category:</b> ${category}<br>
+        <b>ICP:</b> ${row.Cd_ppm_ICP61 || 'N/A'}<br>
+        <b>ICP2:</b> ${row.Cr_ppm_ICP61 || 'N/A'}
+`);
         layers[category].addLayer(marker);
       });
 
