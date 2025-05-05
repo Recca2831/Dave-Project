@@ -30,8 +30,8 @@
 <div id="legend" class="legend"></div>
 
 <script>
-  // Set initial map view to the coordinates (41.2194833, -106.2815294)
-  const map = L.map('map').setView([41.2194833, -106.2815294], 0);
+  // Set initial map view to the coordinates (41.2194833, -106.2815294) with zoom level 5 (not 0)
+  const map = L.map('map').setView([41.2194833, -106.2815294], 5);
 
   // Add OpenStreetMap tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -130,8 +130,8 @@
       // Add the legend
       addLegend(Array.from(categories));
 
-      // Fit map to bounds of all markers
-      map.fitBounds(markerClusters.getBounds());
+      // Fit map to bounds of all markers, but you can adjust it if it zooms in too much
+      map.fitBounds(markerClusters.getBounds(), { maxZoom: 12 });
     }
   });
 </script>
