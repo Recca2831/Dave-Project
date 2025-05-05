@@ -112,17 +112,17 @@
           fillOpacity: 0.8
         }).bindPopup(popupContent);
 
-        // Add marker to the cluster group
+        // Add marker to the marker cluster group
         markerClusters.addLayer(marker);
 
-        // Store layers by category (if needed for toggling later)
+        // Optionally store layers by category (for toggling later, if desired)
         if (!layers[category]) {
           layers[category] = L.layerGroup();
         }
         layers[category].addLayer(marker);
       });
 
-      // Add all markers to the map using the marker cluster group
+      // Add all markers to the map using the marker cluster group (which handles clustering and spiderfying)
       map.addLayer(markerClusters);
 
       // Add the legend
