@@ -113,12 +113,11 @@ const marker = L.circleMarker([lat, lon], {
   color: getColor(category),
   fillOpacity: 0.8
 }).bindPopup(popupContent);
-        layers[category].addLayer(marker);
-      });
-
-      addLegend(Array.from(categories));
-      map.fitBounds(L.featureGroup(Object.values(layers)).getBounds());
     }
+  }
+}
+
+
   });
 </script>
 
