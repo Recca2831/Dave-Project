@@ -21,39 +21,46 @@
   <script src="https://unpkg.com/leaflet-omnivore@0.3.1/leaflet-omnivore.min.js"></script>
 
   <style>
+    /* Styling the map */
     #map {
       height: 90vh;
       width: 100%;
     }
 
-    .legend {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+    /* Styling the legend container */
+    #legend {
       background: white;
-      padding: 10px;
-      z-index: 1000;
+      padding: 15px;
       font-family: Arial, sans-serif;
       font-size: 14px;
-      line-height: 1.5em;
       border-radius: 5px;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-      max-width: 250px;
+      margin-top: 10px;
+      max-width: 300px;
+      display: flex;
+      flex-direction: column;
     }
 
-    .legend input {
+    #legend input {
       vertical-align: middle;
     }
 
-    .legend label {
+    #legend label {
       margin-left: 5px;
+    }
+
+    #legend hr {
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
 
+<!-- Map Container -->
 <div id="map"></div>
-<div id="legend" class="legend"></div>
+
+<!-- Legend Container (Below the Map) -->
+<div id="legend"></div>
 
 <script>
   const map = L.map('map').setView([41.2194833, -106.2815294], 4);
@@ -129,7 +136,7 @@
     }
   }
 
-  // Function to toggle the KML layer
+  // Function to toggle the KML layer visibility
   window.toggleKML = function() {
     const checkbox = document.getElementById('kmlToggle');
     if (checkbox.checked) {
@@ -184,7 +191,7 @@
         map.addLayer(layers[category]);
       }
 
-      // Add the legend to the map
+      // Add the legend to the page
       addLegend(Array.from(categories));
 
       // Fit map bounds to markers
