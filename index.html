@@ -35,7 +35,6 @@
     maxZoom: 18
   }).addTo(map);
 
-  const layers = {};
   const colors = {};
 
   // Function to generate random color for categories
@@ -112,14 +111,8 @@
           fillOpacity: 0.8
         }).bindPopup(popupContent);
 
-        // Add marker to the marker cluster group
+        // Add marker to the marker cluster group (This handles clustering and spiderfying)
         markerClusters.addLayer(marker);
-
-        // Optionally store layers by category (for toggling later, if desired)
-        if (!layers[category]) {
-          layers[category] = L.layerGroup();
-        }
-        layers[category].addLayer(marker);
       });
 
       // Add all markers to the map using the marker cluster group (which handles clustering and spiderfying)
@@ -128,9 +121,8 @@
       // Add the legend
       addLegend(Array.from(categories));
 
-      // Fit map to bounds of all layers
-      const allLayers = L.featureGroup(Object.values(layers));
-      map.fitBounds(allLayers.getBounds());
+      // Fit map to bounds of all markers
+      map.fitBounds(markerClusters.getBounds());
     }
   });
 </script>
