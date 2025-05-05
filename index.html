@@ -94,10 +94,12 @@
           color: getColor(category),
           fillOpacity: 0.8
         })
+
+        //mouseover data
         let popupContent = '<strong>Details:</strong><br>';
-for (const key in row) {
+for (const key in column) {
   if (row.hasOwnProperty(key)) {
-    const value = row[key] || 'N/A';
+    const value = column[key] || 'N/A';
     if (key.toLowerCase() === 'website') {
       popupContent += `<b>${key}:</b> <a href="${value}" target="_blank">${value}</a><br>`;
     } else {
