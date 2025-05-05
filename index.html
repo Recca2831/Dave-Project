@@ -89,6 +89,7 @@
     return colors[category];
   }
 
+  // Add the legend content (this function is called after CSV data is loaded)
   function addLegend(categories) {
     const legend = document.getElementById('legend');
     legend.innerHTML = '<b>Toggle Categories:</b><br>';
@@ -115,6 +116,7 @@
     `;
   }
 
+  // Function to toggle the visibility of categories in the legend
   function toggleLayer(category) {
     if (layers[category]) {
       if (map.hasLayer(layers[category])) {
@@ -125,6 +127,7 @@
     }
   }
 
+  // Function to toggle the KML layer
   window.toggleKML = function() {
     const checkbox = document.getElementById('kmlToggle');
     if (checkbox.checked) {
@@ -167,12 +170,15 @@
         layers[category].addLayer(marker);
       });
 
+      // Add markers for each category to the map
       for (const category in layers) {
         map.addLayer(layers[category]);
       }
 
+      // Add the legend after markers are loaded
       addLegend(Array.from(categories));
 
+      // Fit the map bounds to include all the markers
       const allMarkers = L.featureGroup(Object.values(layers));
       map.fitBounds(allMarkers.getBounds(), { maxZoom: 8 });
     }
