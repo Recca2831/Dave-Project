@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CSV Map with Legend and KML Toggle</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
@@ -21,7 +21,11 @@
   <script src="https://unpkg.com/leaflet-omnivore@0.3.1/leaflet-omnivore.min.js"></script>
 
   <style>
-    #map { height: 90vh; width: 100%; }
+    #map {
+      height: 90vh;
+      width: 100%;
+    }
+
     .legend {
       position: absolute;
       top: 10px;
@@ -33,15 +37,16 @@
       font-size: 14px;
       line-height: 1.5em;
       border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
       max-width: 250px;
     }
-    .legend input { vertical-align: middle; }
-    .legend label { margin-left: 5px; }
 
-    /* Prevent KML from blocking mouse clicks */
-    .leaflet-overlay-pane svg path {
-      pointer-events: none !important;
+    .legend input {
+      vertical-align: middle;
+    }
+
+    .legend label {
+      margin-left: 5px;
     }
   </style>
 </head>
@@ -57,30 +62,23 @@
     maxZoom: 18
   }).addTo(map);
 
-  const colors = {};
   const layers = {};
-  const csvUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/refs/heads/main/wy-geo-db-polished.csv';
+  const colors = {};
 
-  // KML layer setup
+  // KML Layer setup (added but not yet shown)
   const kmlUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/main/green%20claim%20line%20KML%20test.kml';
   let kmlLayer;
 
-  // Preload KML layer (but don't add yet)
-  omnivore.kml(kmlUrl)
-    .on('ready', function () {
-      this.eachLayer(layer => {
-        layer.setStyle({
-          color: 'green',
-          weight: 2,
-          opacity: 0.7
-        });
-        if (layer instanceof L.Path) {
-          layer.options.interactive = false;
-          layer.off();
-        }
+  omnivore.kml(kmlUrl).on('ready', function () {
+    this.eachLayer(function (layer) {
+      layer.setStyle({
+        color: 'green',
+        weight: 2,
+        opacity: 0.7
       });
-      kmlLayer = this;
     });
+    kmlLayer = this;  // Save the KML layer
+  });
 
   function getColor(category) {
     if (!colors[category]) {
@@ -89,13 +87,12 @@
     return colors[category];
   }
 
-  // Add the legend content (this function is called after CSV data is loaded)
   function addLegend(categories) {
     const legend = document.getElementById('legend');
     legend.innerHTML = '<b>Toggle Categories:</b><br>';
 
-    // Category toggles
-    categories.forEach(category => {
+    // Add categories to the legend
+    categories.forEach((category) => {
       const color = getColor(category);
       legend.innerHTML += `
         <div>
@@ -106,7 +103,7 @@
       `;
     });
 
-    // KML toggle
+    // Add KML toggle to the legend
     legend.innerHTML += `
       <hr>
       <div>
@@ -116,7 +113,6 @@
     `;
   }
 
-  // Function to toggle the visibility of categories in the legend
   function toggleLayer(category) {
     if (layers[category]) {
       if (map.hasLayer(layers[category])) {
@@ -127,7 +123,6 @@
     }
   }
 
-  // Function to toggle the KML layer
   window.toggleKML = function() {
     const checkbox = document.getElementById('kmlToggle');
     if (checkbox.checked) {
@@ -137,6 +132,8 @@
     }
   };
 
+  const csvUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/refs/heads/main/wy-geo-db-polished.csv';
+
   Papa.parse(csvUrl, {
     download: true,
     header: true,
@@ -144,10 +141,10 @@
       const data = results.data;
       const categories = new Set();
 
-      data.forEach(row => {
+      data.forEach((row) => {
         const lat = parseFloat(row.Latitude);
         const lon = parseFloat(row.Longitude);
-        const category = row.Cd_ppm_ICP61 || "Uncategorized";
+        const category = row.Cd_ppm_ICP61 || 'Uncategorized';
         if (isNaN(lat) || isNaN(lon)) return;
 
         categories.add(category);
@@ -170,18 +167,18 @@
         layers[category].addLayer(marker);
       });
 
-      // Add markers for each category to the map
+      // Add the layers to the map
       for (const category in layers) {
         map.addLayer(layers[category]);
       }
 
-      // Add the legend after markers are loaded
+      // Now add the legend
       addLegend(Array.from(categories));
 
-      // Fit the map bounds to include all the markers
+      // Fit the map to the bounds of all markers
       const allMarkers = L.featureGroup(Object.values(layers));
       map.fitBounds(allMarkers.getBounds(), { maxZoom: 8 });
-    }
+    },
   });
 </script>
 
