@@ -35,8 +35,7 @@
 
   function getColor(category) {
     if (!colors[category]) {
-      // Assign a random color if not already assigned
-      colors[category] = '#' + Math.floor(Math.random()*16777215).toString(16);
+      colors[category] = '#' + Math.floor(Math.random() * 16777215).toString(16);
     }
     return colors[category];
   }
@@ -67,7 +66,6 @@
     }
   }
 
-  // Replace this with your actual raw GitHub CSV URL
   const csvUrl = 'https://raw.githubusercontent.com/Recca2831/Dave-Project/refs/heads/main/wy-geo-db-polished.csv';
 
   Papa.parse(csvUrl, {
@@ -89,37 +87,26 @@
           layers[category] = L.layerGroup().addTo(map);
         }
 
+        let popupContent = '<strong>Details:</strong><br>';
+        for (const key in row) {
+          if (row.hasOwnProperty(key)) {
+            const value = row[key] || 'N/A';
+            if (key.toLowerCase() === 'website') {
+              popupContent += `<b>${key}:</b> <a href="${value}" target="_blank">${value}</a><br>`;
+            } else {
+              popupContent += `<b>${key}:</b> ${value}<br>`;
+            }
+          }
+        }
+
         const marker = L.circleMarker([lat, lon], {
           radius: 6,
           color: getColor(category),
           fillOpacity: 0.8
-        })
+        }).bindPopup(popupContent);
 
-        //mouseover data
-        let popupContent = '<strong>Details:</strong><br>';
-for (const key in row) {
-  if (row.hasOwnProperty(key)) {
-    const value = row[key] || 'N/A';
-    if (key.toLowerCase() === 'website') {
-      popupContent += `<b>${key}:</b> <a href="${value}" target="_blank">${value}</a><br>`;
-    } else {
-      popupContent += `<b>${key}:</b> ${value}<br>`;
-    }
-  }
-}
+        layers[category].addLayer(marker);
+      });
 
-const marker = L.circleMarker([lat, lon], {
-  radius: 6,
-  color: getColor(category),
-  fillOpacity: 0.8
-}).bindPopup(popupContent);
-    }
-  }
-}
-
-
-  });
-</script>
-
-</body>
-</html>
+      addLegend(Array.from(categories));
+      // Fit
