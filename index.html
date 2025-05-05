@@ -92,9 +92,6 @@
         if (isNaN(lat) || isNaN(lon)) return;
 
         categories.add(category);
-        if (!layers[category]) {
-          layers[category] = L.layerGroup().addTo(map);
-        }
 
         let popupContent = '<strong>Details:</strong><br>';
         for (const key in row) {
@@ -117,6 +114,11 @@
 
         // Add marker to the cluster group
         markerClusters.addLayer(marker);
+
+        // Store layers by category (if needed for toggling later)
+        if (!layers[category]) {
+          layers[category] = L.layerGroup();
+        }
         layers[category].addLayer(marker);
       });
 
