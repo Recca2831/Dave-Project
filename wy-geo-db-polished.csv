@@ -1,4 +1,4 @@
-﻿Lat_WGS84,Long_WGS84,Cd_ppm_ICP61,Cr_ppm_ICP61,Dy_ppm_ICP61,Er_ppm_ICP61,Eu_ppm_ICP61,Ga_ppm_ICP61,Gd_ppm_ICP61,Ge_ppm_ICP61,Nd_ppm_ICP61,Pr_ppm_ICP61,Rb_ppm_ICP61,Te_ppm_ICP61,Tm_ppm_ICP61,Yb_ppm_ICP61
+﻿Latitude,Longitude,Cd_ppm_ICP61,Cr_ppm_ICP61,Dy_ppm_ICP61,Er_ppm_ICP61,Eu_ppm_ICP61,Ga_ppm_ICP61,Gd_ppm_ICP61,Ge_ppm_ICP61,Nd_ppm_ICP61,Pr_ppm_ICP61,Rb_ppm_ICP61,Te_ppm_ICP61,Tm_ppm_ICP61,Yb_ppm_ICP61
 41.25123,-106.27823,-10,-0.1,2.3,-10,6.5,-10,1.7,0.79,0.1,12,29.2,3,0.36,3.02
 41.23419,-106.27766,-1,234,-0.2,24.6,43,116,0.6,58,10.8,1606,2,-1,286,-0.5
 41.23419,-106.27766,-1,239,-0.2,25.3,43.2,126,0.6,65,11,1644,2,-1,297,-0.5
