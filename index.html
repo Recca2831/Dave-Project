@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CSV Map with Legend and KML Toggle</title>
+  <title>CSV Map with Legend and Custom Layer Toggle</title>
 
   <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
@@ -115,12 +115,12 @@
       `;
     });
 
-    // Add KML layer toggle checkbox
+    // Add Custom Layer toggle checkbox (Renamed)
     legend.innerHTML += `
       <hr>
       <div>
         <input type="checkbox" id="kmlToggle" checked onchange="toggleKML()">
-        <label for="kmlToggle"><strong>Show KML Layer</strong></label>
+        <label for="kmlToggle"><strong>Original Rambler CLaim Lines</strong></label> <!-- Renamed here -->
       </div>
     `;
   }
