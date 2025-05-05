@@ -9,6 +9,11 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 
+  <!-- Leaflet MarkerCluster CSS & JS (for clustering and spiderfying) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
+
   <!-- PapaParse for CSV parsing -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
 
@@ -33,6 +38,7 @@
   const layers = {};
   const colors = {};
 
+  // Function to generate random color for categories
   function getColor(category) {
     if (!colors[category]) {
       colors[category] = '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -40,6 +46,7 @@
     return colors[category];
   }
 
+  // Function to add legend
   function addLegend(categories) {
     const legend = document.getElementById('legend');
     legend.innerHTML = '<b>Toggle Categories:</b><br>';
@@ -55,6 +62,7 @@
     });
   }
 
+  // Function to toggle visibility of layers
   function toggleLayer(category) {
     if (layers[category]) {
       const layerGroup = layers[category];
@@ -74,6 +82,7 @@
     complete: function(results) {
       const data = results.data;
       const categories = new Set();
+      const markerClusters = L.markerClusterGroup(); // Create a marker cluster group
 
       data.forEach(row => {
         const lat = parseFloat(row.Latitude);
@@ -99,16 +108,24 @@
           }
         }
 
+        // Create a marker and bind a popup
         const marker = L.circleMarker([lat, lon], {
           radius: 6,
           color: getColor(category),
           fillOpacity: 0.8
         }).bindPopup(popupContent);
 
+        // Add marker to the cluster group
+        markerClusters.addLayer(marker);
         layers[category].addLayer(marker);
       });
 
+      // Add all markers to the map using the marker cluster group
+      map.addLayer(markerClusters);
+
+      // Add the legend
       addLegend(Array.from(categories));
+
       // Fit map to bounds of all layers
       const allLayers = L.featureGroup(Object.values(layers));
       map.fitBounds(allLayers.getBounds());
