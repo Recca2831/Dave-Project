@@ -80,7 +80,7 @@
       data.forEach(row => {
         const lat = parseFloat(row.Latitude);
         const lon = parseFloat(row.Longitude);
-        const category = row.Category || "Uncategorized";
+        const category = row.Cd_ppm_ICP61 || "Uncategorized";
 
         if (isNaN(lat) || isNaN(lon)) return;
 
