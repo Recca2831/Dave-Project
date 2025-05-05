@@ -191,7 +191,7 @@
         map.addLayer(layers[category]);
       }
 
-      // Add the legend to the page
+      // Add the legend to the page **after map and layers are loaded**
       addLegend(Array.from(categories));
 
       // Fit map bounds to markers
