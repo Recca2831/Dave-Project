@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>CSV Map with Legend</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+  <!-- PapaParse for CSV parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+
+  <style>
+    #map { height: 90vh; width: 100%; }
+    .legend { background: white; padding: 10px; line-height: 1.5em; }
+    .legend input { vertical-align: middle; }
+    .legend label { margin-left: 5px; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="legend" class="legend"></div>
+
+<script>
+  const map = L.map('map').setView([0, 0], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18
+  }).addTo(map);
+
+  const layers = {};
+  const colors = {};
+
+  function getColor(category) {
+    if (!colors[category]) {
+      // Assign a random color if not already assigned
+      colors[category] = '#' + Math.floor(Math.random()*16777215).toString(16);
+    }
+    return colors[category];
+  }
+
+  function addLegend(categories) {
+    const legend = document.getElementById('legend');
+    legend.innerHTML = '<b>Toggle Categories:</b><br>';
+    categories.forEach(category => {
+      const color = getColor(category);
+      legend.innerHTML += `
+        <div>
+          <input type="checkbox" id="${category}" checked onchange="toggleLayer('${category}')">
+          <span style="color:${color};">&#9679;</span>
+          <label for="${category}">${category}</label>
+        </div>
+      `;
+    });
+  }
+
+  function toggleLayer(category) {
+    if (layers[category]) {
+      const layerGroup = layers[category];
+      if (map.hasLayer(layerGroup)) {
+        map.removeLayer(layerGroup);
+      } else {
+        map.addLayer(layerGroup);
+      }
+    }
+  }
+
+  // Replace this with your actual raw GitHub CSV URL
+  const csvUrl = 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/yourfile.csv';
+
+  Papa.parse(csvUrl, {
+    download: true,
+    header: true,
+    complete: function(results) {
+      const data = results.data;
+      const categories = new Set();
+
+      data.forEach(row => {
+        const lat = parseFloat(row.Latitude);
+        const lon = parseFloat(row.Longitude);
+        const category = row.Category || "Uncategorized";
+
+        if (!lat || !lon) return;
+
+        categories.add(category);
+        if (!layers[category]) {
+          layers[category] = L.layerGroup().addTo(map);
+        }
+
+        const marker = L.circleMarker([lat, lon], {
+          radius: 6,
+          color: getColor(category),
+          fillOpacity: 0.8
+        }).bindPopup(`<strong>${row.Name || 'Unnamed'}</strong><br>${category}`);
+
+        layers[category].addLayer(marker);
+      });
+
+      addLegend(Array.from(categories));
+      map.fitBounds(L.featureGroup(Object.values(layers)).getBounds());
+    }
+  });
+</script>
+
+</body>
+</html>
