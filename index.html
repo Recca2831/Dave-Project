@@ -94,12 +94,23 @@
           color: getColor(category),
           fillOpacity: 0.8
         })
-        .bindPopup(`
-        <strong>${row.Name || 'Unnamed'}</strong><br>
-        <b>Category:</b> ${category}<br>
-        <b>ICP:</b> ${row.Cd_ppm_ICP61 || 'N/A'}<br>
-        <b>ICP2:</b> ${row.Cr_ppm_ICP61 || 'N/A'}
-`);
+        let popupContent = '<strong>Details:</strong><br>';
+for (const key in row) {
+  if (row.hasOwnProperty(key)) {
+    const value = row[key] || 'N/A';
+    if (key.toLowerCase() === 'website') {
+      popupContent += `<b>${key}:</b> <a href="${value}" target="_blank">${value}</a><br>`;
+    } else {
+      popupContent += `<b>${key}:</b> ${value}<br>`;
+    }
+  }
+}
+
+const marker = L.circleMarker([lat, lon], {
+  radius: 6,
+  color: getColor(category),
+  fillOpacity: 0.8
+}).bindPopup(popupContent);
         layers[category].addLayer(marker);
       });
 
