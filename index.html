@@ -88,6 +88,8 @@
       });
     });
     kmlLayer = this;  // Save the KML layer for toggling later
+    // Ensure legend is updated after KML is loaded
+    updateLegend();
   });
 
   // Function to get a random color for each category
@@ -99,12 +101,21 @@
   }
 
   // Function to create the legend
-  function addLegend(categories) {
+  function updateLegend() {
     const legend = document.getElementById('legend');
     legend.innerHTML = '<b>Toggle Categories:</b><br>';
 
-    // Add categories to the legend
-    categories.forEach((category) => {
+    // Add custom KML layer toggle
+    legend.innerHTML += `
+      <hr>
+      <div>
+        <input type="checkbox" id="kmlToggle" checked onchange="toggleKML()">
+        <label for="kmlToggle"><strong>Original Claim Lines</strong></label> <!-- Renamed here -->
+      </div>
+    `;
+
+    // Add categories to the legend dynamically based on data
+    Object.keys(layers).forEach((category) => {
       const color = getColor(category);
       legend.innerHTML += `
         <div>
@@ -113,16 +124,7 @@
           <label for="${category}">${category}</label>
         </div>
       `;
-    });
-
-    // Add Custom Layer toggle checkbox (Renamed)
-    legend.innerHTML += `
-      <hr>
-      <div>
-        <input type="checkbox" id="kmlToggle" checked onchange="toggleKML()">
-        <label for="kmlToggle"><strong>Original Claim Lines</strong></label> <!-- Renamed here -->
-      </div>
-    `;
+  }
   }
 
   // Function to toggle the visibility of the layers based on category
@@ -191,8 +193,8 @@
         map.addLayer(layers[category]);
       }
 
-      // Add the legend to the page **after map and layers are loaded**
-      addLegend(Array.from(categories));
+      // Update the legend now that all layers are added
+      updateLegend();
 
       // Fit map bounds to markers
       const allMarkers = L.featureGroup(Object.values(layers));
